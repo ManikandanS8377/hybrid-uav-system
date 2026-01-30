@@ -1,0 +1,2 @@
+For Custom YOLO Model Built.
+https://pyseek.com/2024/08/bike-helmet-detection-project-in-python/
