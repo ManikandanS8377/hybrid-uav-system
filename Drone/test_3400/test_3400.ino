@@ -3,106 +3,140 @@
 
 MPU6050 mpu;
 
-// --- Motor Pin Mapping ---
-#define M1 25 // Front Right (Prop B - CCW)
-#define M2 26 // Front Left  (Prop A - CW)
-#define M3 27 // Back Left   (Prop B - CCW)
-#define M4 14 // Back Right  (Prop A - CW)
+// ===== MOTOR PINS (Corrected Mapping) =====
+#define M1 25  // Front Right
+#define M2 26  // Front Left
+#define M3 14  // Back Left   (SWAPPED)
+#define M4 27  // Back Right  (SWAPPED)
 
-const int pwmFreq = 16000;
-const int pwmRes  = 8;
+// ===== PID TUNING =====
+float Kp = 1.4;
+float Ki = 0.02;
+float Kd = 0.05;
 
-// --- PID TUNING ---
-float Kp = 0.8; 
-float Kd = 0.05; 
+// ===== IMU VARIABLES =====
+float roll = 0, pitch = 0;
+float rollOffset = 0, pitchOffset = 0;
 
-// --- YOUR MEASURED GROUND VALUES ---
-float targetPitch = 4.0; 
-float targetRoll  = 0.6;
+float pI = 0, rI = 0;
+float prevPitchError = 0, prevRollError = 0;
 
-float roll, pitch, rollPrev, pitchPrev;
 unsigned long prevTime;
 unsigned long missionStart;
+
+bool initialized = false;
 bool armed = false;
 
 void setup() {
   Serial.begin(115200);
-  Wire.begin(21, 22);
+  Wire.begin();
   mpu.initialize();
 
-  ledcAttach(M1, pwmFreq, pwmRes);
-  ledcAttach(M2, pwmFreq, pwmRes);
-  ledcAttach(M3, pwmFreq, pwmRes);
-  ledcAttach(M4, pwmFreq, pwmRes);
-  
-  // Safety: Kill motors immediately on boot
+  // Attach PWM
+  ledcAttach(M1, 16000, 8);
+  ledcAttach(M2, 16000, 8);
+  ledcAttach(M3, 16000, 8);
+  ledcAttach(M4, 16000, 8);
+
   stopMotors();
 
-  Serial.println("--- READY FOR 10-FOOT MISSION ---");
-  Serial.println("Place drone on flat ground. Launching in 5s...");
-  delay(5000);
+  Serial.println("Keep drone perfectly flat...");
+  delay(4000);
 
-  missionStart = millis();
+  // ===== INITIAL ANGLE CALIBRATION =====
+  int16_t ax, ay, az, gx, gy, gz;
+  mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+  roll  = atan2(ay, az) * 57.2958;
+  pitch = atan2(-ax, sqrt(ay * ay + az * az)) * 57.2958;
+
+  rollOffset  = roll;
+  pitchOffset = pitch;
+
   prevTime = millis();
+  missionStart = millis();
   armed = true;
+
+  Serial.println("MISSION STARTED");
 }
 
 void loop() {
+
   if (!armed) return;
 
-  unsigned long currentTime = millis();
-  float dt = (currentTime - prevTime) / 1000.0;
+  unsigned long now = millis();
+  float dt = (now - prevTime) / 1000.0;
+  prevTime = now;
+
   if (dt <= 0 || dt > 0.1) dt = 0.01;
-  prevTime = currentTime;
 
   int16_t ax, ay, az, gx, gy, gz;
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
-  // 1. Calculate Current Angles (Filtered)
-  float accRoll  = (atan2(ay, az) * 57.3) * -1.0;
-  float accPitch = atan2(-ax, az) * 57.3;
+  // ===== ANGLE CALCULATION =====
+  float accRoll  = atan2(ay, az) * 57.2958;
+  float accPitch = atan2(-ax, sqrt(ay * ay + az * az)) * 57.2958;
 
-  roll  = 0.96 * (roll - (gx / 131.0) * dt) + 0.04 * accRoll;
-  pitch = 0.96 * (pitch + (gy / 131.0) * dt) + 0.04 * accPitch;
+  float gyroRollRate  = gx / 131.0;
+  float gyroPitchRate = gy / 131.0;
 
-  // 2. Mission Logic (Thrust Control)
-  unsigned long activeTime = millis() - missionStart;
+  // Complementary filter
+  roll  = 0.98 * (roll + gyroRollRate * dt) + 0.02 * accRoll;
+  pitch = 0.98 * (pitch + gyroPitchRate * dt) + 0.02 * accPitch;
+
+  float correctedRoll  = roll  - rollOffset;
+  float correctedPitch = pitch - pitchOffset;
+
+  // ===== MISSION LOGIC =====
+  unsigned long t = millis() - missionStart;
   int baseSpeed = 0;
 
-  if (activeTime < 3000) {
-    baseSpeed = 50; 
-  } else if (activeTime < 15000) {
-    baseSpeed = 230; // Power for climb phase
-  } else {
-    baseSpeed = 0;   
-    armed = false;
-    stopMotors();
-    Serial.println("MISSION COMPLETE - SHUTTING DOWN");
+  if (t < 3000) {
+    baseSpeed = 50;   // Idle spin
+  }
+  else if (t < 13000) {
+    baseSpeed = 230;  // Climb
+  }
+  else {
+    baseSpeed = 200;  // Hover (adjust after test)
   }
 
-  // 3. PID Math (Error = Target - Current)
-  float pError = targetPitch - pitch; 
-  float rError = targetRoll - roll;
+  // ===== PID =====
+  float pitchError = 0 - correctedPitch;
+  float rollError  = 0 - correctedRoll;
 
-  float pPID = (Kp * pError) + (Kd * (pError - pitchPrev) / dt);
-  float rPID = (Kp * rError) + (Kd * (rError - rollPrev) / dt);
+  pI += pitchError * dt;
+  rI += rollError * dt;
 
-  pitchPrev = pError;
-  rollPrev = rError;
+  pI = constrain(pI, -20, 20);
+  rI = constrain(rI, -20, 20);
 
-  // 4. Motor Mixing
-  // Based on your values: If pitch > 4.0 (Front Down), pError becomes negative.
-  // Using (baseSpeed - pPID) makes the front motors go FASTER.
+  float pPID = Kp * pitchError +
+               Ki * pI +
+               Kd * (pitchError - prevPitchError) / dt;
+
+  float rPID = Kp * rollError +
+               Ki * rI +
+               Kd * (rollError - prevRollError) / dt;
+
+  prevPitchError = pitchError;
+  prevRollError  = rollError;
+
+  // ===== MOTOR MIXING =====
   int s1 = constrain(baseSpeed - pPID + rPID, 0, 255); // Front Right
   int s2 = constrain(baseSpeed - pPID - rPID, 0, 255); // Front Left
   int s3 = constrain(baseSpeed + pPID - rPID, 0, 255); // Back Left
   int s4 = constrain(baseSpeed + pPID + rPID, 0, 255); // Back Right
 
-  if (baseSpeed > 0) {
-    ledcWrite(M1, s1); ledcWrite(M2, s2); ledcWrite(M3, s3); ledcWrite(M4, s4);
-  }
+  ledcWrite(M1, s1);
+  ledcWrite(M2, s2);
+  ledcWrite(M3, s3);
+  ledcWrite(M4, s4);
 }
 
 void stopMotors() {
-  ledcWrite(M1, 0); ledcWrite(M2, 0); ledcWrite(M3, 0); ledcWrite(M4, 0);
+  ledcWrite(M1, 0);
+  ledcWrite(M2, 0);
+  ledcWrite(M3, 0);
+  ledcWrite(M4, 0);
 }
