@@ -1,75 +1,86 @@
-#include "Config.h"
-#include "WifiManager.h"
-#include "MqttManager.h"
-#include "RcInput.h"
-#include "Mixer.h"
-#include "Motor.h"
-#include "Debug.h"
+#include <Arduino.h>
 #include "IMU.h"
 #include "PID.h"
+#include "Mixer.h"
+#include "Motor.h"
+#include "RcInput.h"
+#include "Debug.h"
+#include "FlightController.h"
+#include "WifiManager.h"
+#include "config.h"
 
-// Global objects
-WifiManager wifi;
-MqttManager mqtt;
-RcInput rc;
-Mixer mixer;
-Motor motors;
+
+// --- Global objects ---
 IMU imu;
+PID pidRoll(0.5, 0.0, 0.1);
+PID pidPitch(0.5, 0.0, 0.1);
+PID pidYaw(0.5, 0.0, 0.1);
+Mixer mixer;
+Motor motor;
+RcInput rc;
+FlightController fc;
+WifiManager wifi;
 
-// PID controllers (values inspired by Betaflight dump)
-PID pidRoll(42, 85, 24);   // kp, ki, kd
-PID pidPitch(46, 90, 26);
-PID pidYaw(45, 90, 0);
+// --- Timing ---
+unsigned long lastLoopMicros = 0;
+const unsigned long LOOP_PERIOD = 2000; // 2000 µs = 500 Hz loop
 
-unsigned long lastUpdate = 0;
+// --- Failsafe ---
+unsigned long lastRcUpdate = 0;
+const unsigned long FAILSAFE_TIMEOUT = 500000; // 500 ms
 
 void setup() {
   Serial.begin(115200);
-  Debug::logln("[BOOT] ESP-FC Custom Firmware");
-
-  // Network setup
   wifi.begin(WIFI_SSID, WIFI_PASS);
-  mqtt.begin(MQTT_BROKER, MQTT_PORT, MQTT_TOPIC, &rc);
-
-  // Hardware setup
-  motors.begin();
-  imu.begin();   // initialize MPU6050
+  imu.begin();
+  motor.begin();
+  rc.begin();
+  fc.begin();
+  Debug::logln("[BOOT] Flight loop initialized");
 }
 
 void loop() {
+  // Non-blocking WiFi/MQTT handling
   wifi.update();
-  mqtt.update();
+  rc.updateConnection();
 
-  unsigned long now = millis();
-  float dt = (now - lastUpdate) / 1000.0f;
-  lastUpdate = now;
+  unsigned long now = micros();
 
-  imu.update();   // read gyro + accel
+  // Enforce fixed loop frequency
+  if (now - lastLoopMicros < LOOP_PERIOD) return;
+  float dt = (now - lastLoopMicros) / 1e6f; // seconds
+  lastLoopMicros = now;
 
-  if (rc.isValid()) {
-    // Desired rates from RC input
-    float rollSet  = rc.get(ROLL_CH);
-    float pitchSet = rc.get(PITCH_CH);
-    float yawSet   = rc.get(YAW_CH);
-
-    // Measured rates from IMU gyro
-    float rollRate  = imu.getGyroX();
-    float pitchRate = imu.getGyroY();
-    float yawRate   = imu.getGyroZ();
-
-    // PID corrections
-    float rollOut  = pidRoll.update(rollSet, rollRate, dt);
-    float pitchOut = pidPitch.update(pitchSet, pitchRate, dt);
-    float yawOut   = pidYaw.update(yawSet, yawRate, dt);
-
-    // Feed corrections into mixer
-    mixer.update(rc, rollOut, pitchOut, yawOut);
-
-    // Drive motors
-    motors.update(mixer);
-  } else {
-    motors.failsafe();
+  // --- Failsafe check ---
+  if ((now - lastRcUpdate) > FAILSAFE_TIMEOUT) {
+    motor.failsafe();
+    Debug::logln("[FAILSAFE] RC timeout, motors off");
+    return;
   }
 
-  Debug::heartbeat();
+  fc.runFlightLoop(dt);
+
+  // --- Flight control loop ---
+  imu.update(dt);   // ✅ pass dt for complementary filter
+  fc.update(dt);
+
+  // RC inputs
+  int throttle = rc.get(THROTTLE_CH);
+  bool armed   = rc.get(ARM_CH) > 1500;
+
+  if (!armed || throttle < MOTOR_IDLE) {
+    motor.idle();
+    return;
+  }
+
+  // PID corrections (gyro rates in deg/s)
+  float rollCorr  = pidRoll.update(0, imu.getRollRate(), dt);
+  float pitchCorr = pidPitch.update(0, imu.getPitchRate(), dt);
+  float yawCorr   = pidYaw.update(0, imu.getYawRate(), dt);
+
+  // Mixer
+  mixer.update(rc, rollCorr, pitchCorr, yawCorr);
+
+  // Motors
+  motor.update(mixer);
 }

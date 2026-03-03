@@ -4,27 +4,27 @@
 #include <PubSubClient.h>
 
 WiFiClient wifiClient;
-PubSubClient client(wifiClient);
+PubSubClient mqttClient(wifiClient);   // ✅ match RcInput.cpp extern
 RcInput* rcInput;
 
 void MqttManager::begin(const char* broker, int port, const char* topic, RcInput* rc) {
-  client.setServer(broker, port);
-  client.setCallback(callback);
+  mqttClient.setServer(broker, port);
+  mqttClient.setCallback(callback);
   rcInput = rc;
   _topic = topic;
 }
 
 void MqttManager::update() {
-  if (!client.connected()) {
+  if (!mqttClient.connected()) {
     if (WiFi.status() == WL_CONNECTED) {
       Debug::logln("[MQTT] Connecting...");
-      if (client.connect("espfc")) {
+      if (mqttClient.connect("espfc")) {
         Debug::logln("[MQTT] Connected");
-        client.subscribe(_topic);
+        mqttClient.subscribe(_topic);
       }
     }
   }
-  client.loop();
+  mqttClient.loop();
 }
 
 void MqttManager::callback(char* topic, byte* payload, unsigned int length) {

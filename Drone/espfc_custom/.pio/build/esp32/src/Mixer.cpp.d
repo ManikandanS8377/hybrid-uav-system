@@ -1,5 +1,4 @@
-.pio/build/esp32/src/Mixer.cpp.o: src/Mixer.cpp src/Mixer.h src/RcInput.h \
- src/Config.h \
+.pio/build/esp32/src/Mixer.cpp.o: src/Mixer.cpp src/Mixer.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp_arduino_version.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/freertos/FreeRTOS.h \
@@ -134,4 +133,4 @@
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/io_pin_remap.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
- src/Debug.h
+ src/RcInput.h src/Config.h src/Debug.h

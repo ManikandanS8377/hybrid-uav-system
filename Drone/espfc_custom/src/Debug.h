@@ -8,4 +8,6 @@ public:
   static void logln(int val);
   static void log(int val);
   static void heartbeat();
+  static void begin(long baud);
+
 };

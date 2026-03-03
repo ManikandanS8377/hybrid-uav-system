@@ -24,3 +24,6 @@ void Debug::heartbeat() {
     last = now;
   }
 }
+
+void Debug::begin(long baud) { Serial.begin(baud); }
+

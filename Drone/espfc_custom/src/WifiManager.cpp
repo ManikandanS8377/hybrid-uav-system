@@ -4,10 +4,17 @@
 #include <PubSubClient.h>
 
 void WifiManager::begin(const char* ssid, const char* pass) {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, pass);
-  Debug::log("[WiFi] Connecting to "); 
-  Debug::logln(ssid);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, pass);
+    Debug::log("[WiFi] Connecting to ");
+    Debug::logln(ssid);
+
+    // Wait until connected (blocking only at startup)
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Debug::log(".");
+    }
+    Debug::logln("\n[WiFi] Connected!");
 }
 
 void WifiManager::update() {

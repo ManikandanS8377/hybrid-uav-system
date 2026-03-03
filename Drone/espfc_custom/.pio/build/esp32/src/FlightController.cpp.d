@@ -1,5 +1,5 @@
-.pio/build/esp32/src/RcInput.cpp.o: src/RcInput.cpp src/RcInput.h \
- src/Config.h \
+.pio/build/esp32/src/FlightController.cpp.o: src/FlightController.cpp \
+ src/FlightController.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp_arduino_version.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/freertos/FreeRTOS.h \
@@ -134,65 +134,9 @@
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/io_pin_remap.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
- src/Debug.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiType.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_types.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_private/esp_wifi_types_private.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_interface.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_event/include/esp_event_base.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_event/include/esp_event.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_event/include/esp_event_base.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_event/include/esp_event_legacy.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_netif/include/esp_netif.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_netif/include/esp_netif_ip_addr.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_netif/include/esp_netif_types.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_netif/include/esp_netif_defaults.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_eth/include/esp_eth_netif_glue.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_eth/include/esp_eth.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_eth/include/esp_eth_com.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/eth_types.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_eth/include/esp_eth_mac.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_eth/include/esp_eth_phy.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/tcpip_adapter/include/tcpip_adapter.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/tcpip_adapter/include/tcpip_adapter_types.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/ip_addr.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/opt.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/lwipopts.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include/sys/ioctl.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_system/include/esp_task.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos/FreeRTOSConfig.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/netif/dhcp_state.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/sntp/sntp_get_set_time.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/debug.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/arch.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/arch/cc.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/arch/sys_arch.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/arch/vfs_lwip.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/def.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/ip4_addr.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/ip6_addr.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/def.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/ip6_zone.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/include/apps/dhcpserver/dhcpserver.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/err.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_netif/include/esp_netif_sta_list.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_smartconfig.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/wifi_provisioning/include/wifi_provisioning/manager.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/protocomm/include/common/protocomm.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/protocomm/include/security/protocomm_security.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/wifi_provisioning/include/wifi_provisioning/wifi_config.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiAP.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiScan.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Client.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiServer.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Server.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
- C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
- .pio/libdeps/esp32/PubSubClient/src/PubSubClient.h
+ src/IMU.h \
+ C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h \
+ C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
+ .pio/libdeps/esp32/MPU6050/src/MPU6050.h \
+ .pio/libdeps/esp32/MPU6050/src/I2Cdev.h src/RcInput.h src/Config.h \
+ src/Motor.h src/Mixer.h src/PID.h src/Debug.h

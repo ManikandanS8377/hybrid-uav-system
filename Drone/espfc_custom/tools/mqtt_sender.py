@@ -17,12 +17,21 @@ BROKER = "broker.emqx.io"
 PORT = 1883
 TOPIC = "espfc/rc"
 CHANNELS = 8
-RATE = 20.0  # Hz (20 updates per second)
+RATE = 100.0  # Hz 
 
 def publish(client, values):
     payload = ','.join(str(int(v)) for v in values)
     client.publish(TOPIC, payload)
-    print(f"[Publish] {payload}")   # <-- always print values
+
+    # Print with labels for clarity
+    print(
+        f"ROLL={values[0]} | "
+        f"PITCH={values[1]} | "
+        f"THROTTLE={values[2]} | "
+        f"YAW={values[3]} | "
+        f"ARM={values[4]} | "
+        f"AUX2={values[5]} | AUX3={values[6]} | AUX4={values[7]}"
+    )
 
 def main():
     client = mqtt.Client()

@@ -1,5 +1,4 @@
-.pio/build/esp32/src/main.cpp.o: src/main.cpp src/Config.h \
- src/WifiManager.h \
+.pio/build/esp32/src/main.cpp.o: src/main.cpp \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp_arduino_version.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/freertos/FreeRTOS.h \
@@ -134,9 +133,10 @@
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/io_pin_remap.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
- src/MqttManager.h src/RcInput.h src/Mixer.h src/Motor.h src/Debug.h \
  src/IMU.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h \
  C:/Users/Lenovo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
  .pio/libdeps/esp32/MPU6050/src/MPU6050.h \
- .pio/libdeps/esp32/MPU6050/src/I2Cdev.h src/PID.h
+ .pio/libdeps/esp32/MPU6050/src/I2Cdev.h src/PID.h src/Mixer.h \
+ src/RcInput.h src/Config.h src/Motor.h src/Debug.h \
+ src/FlightController.h src/WifiManager.h

@@ -19,3 +19,6 @@ const int CHANNELS = 8;
 #define MOTOR_MIN     1000
 #define MOTOR_IDLE    1070
 #define MOTOR_MAX     2000
+
+// Motor pins (adjust to your ESP32 GPIOs)
+const int MOTOR_PINS[4] = {14, 25, 27, 26}; // AO3400 gate pins

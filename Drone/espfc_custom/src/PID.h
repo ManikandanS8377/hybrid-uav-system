@@ -3,14 +3,17 @@
 
 class PID {
 public:
-    PID(float kp, float ki, float kd);
+    PID(); // default constructor
+    PID(float kp, float ki, float kd); // parameterized constructor
 
-    float update(float setpoint, float measured, float dt);
-
+    void init(float _kp, float _ki, float _kd);
+    float update(float setpoint, float measurement, float dt);
     void reset();
+    void setIntegralLimit(float limit);
 
 private:
     float kp, ki, kd;
     float integral;
     float lastError;
+    float imax;
 };
