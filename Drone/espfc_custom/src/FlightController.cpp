@@ -19,25 +19,19 @@ void FlightController::begin() {
 
 void FlightController::update(float dt) {
     // Check RC connection
-    runFlightLoop(dt);    
-
-    if (state == FAILSAFE && rc.isValid()) {
-        if (rc.get(ARM_CH) > 1500 && canArm()) {
-            state = ARMING;
-            Debug::logln("[STATE] RECOVERED → ARMING");
-        } else {
-            state = DISARMED;
-            Debug::logln("[STATE] RECOVERED → DISARMED");
-        }
-    }
-
+    runFlightLoop(dt);
 }
 
 void FlightController::runFlightLoop(float dt) {
     imu.update(dt);
     rc.updateConnection();
 
-    if (!rc.isValid()) return;
+    if (!rc.isValid()) {
+        if (state != FAILSAFE) {
+            setFailsafe();
+        }
+        return;
+    }
 
     int throttle = rc.get(THROTTLE_CH);
     int armSwitch = rc.get(ARM_CH);
@@ -77,7 +71,10 @@ void FlightController::runFlightLoop(float dt) {
 
         case FAILSAFE:
             motor.stopAll();
-            Debug::logln("[STATE] FAILSAFE");
+            if (rc.isValid()) {
+                state = DISARMED;
+                Debug::logln("[STATE] RECOVERED → DISARMED");
+            }
             return;
     }
 }
@@ -97,6 +94,9 @@ void FlightController::disarm() {
 }
 
 void FlightController::setFailsafe() {
-    state = FAILSAFE;
-    motor.stopAll();
+    if (state != FAILSAFE) {
+        state = FAILSAFE;
+        motor.stopAll();
+        Debug::logln("[STATE] FAILSAFE (RC Lost)");
+    }
 }

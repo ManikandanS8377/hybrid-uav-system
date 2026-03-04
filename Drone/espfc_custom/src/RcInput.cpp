@@ -73,7 +73,8 @@ void RcInput::process(const char* payload) {
 }
 
 bool RcInput::isValid() {
-    return valid;
+    const unsigned long TIMEOUT = 1500; // 1500ms
+    return (millis() - lastRcUpdate) <= TIMEOUT;
 }
 
 int RcInput::get(int ch) {

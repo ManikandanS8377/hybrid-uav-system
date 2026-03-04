@@ -40,36 +40,14 @@ void setup() {
 }
 
 void loop() {
-  // Non-blocking WiFi/MQTT handling
   wifi.update();
   rc.updateConnection();
 
   unsigned long now = millis();
-
-  // Enforce fixed loop frequency
   if (now - lastLoopMicros < LOOP_PERIOD) return;
-  float dt = (now - lastLoopMicros) / 1e6f; // seconds
+
+  float dt = (now - lastLoopMicros) / 1000.0f;
   lastLoopMicros = now;
 
-  // --- Failsafe check ---
-  if ((now - lastRcUpdate) > FAILSAFE_TIMEOUT) {
-    motor.failsafe();
-    Debug::logln("[FAILSAFE] RC timeout, motors off");
-    return;
-  }
-
-  // --- Flight control loop ---
-  imu.update(dt);   
   fc.update(dt);
-
-  // PID corrections (gyro rates in deg/s)
-  float rollCorr  = pidRoll.update(0, imu.getRollRate(), dt);
-  float pitchCorr = pidPitch.update(0, imu.getPitchRate(), dt);
-  float yawCorr   = pidYaw.update(0, imu.getYawRate(), dt);
-
-  // Mixer
-  mixer.update(rc, rollCorr, pitchCorr, yawCorr);
-
-  // Motors
-  motor.update(mixer);
 }
