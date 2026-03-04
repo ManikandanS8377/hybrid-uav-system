@@ -48,7 +48,7 @@ void Motor::mix(int throttle, float roll, float pitch, float yaw) {
     writeMotor(3, m3);
 }
 
-// ✅ Only one definition of update()
+// Only one definition of update()
 void Motor::update(const Mixer& mixer) {
     for (int i = 0; i < 4; i++) {
         int value = constrain(mixer.getMotor(i), MOTOR_MIN, MOTOR_MAX);
@@ -57,5 +57,6 @@ void Motor::update(const Mixer& mixer) {
 }
 
 void Motor::writeMotor(int channel, int value) {
-    ledcWrite(channel, value);
+    int duty = map(value, MOTOR_MIN, MOTOR_MAX, 0, 65535); 
+    ledcWrite(channel, duty);
 }

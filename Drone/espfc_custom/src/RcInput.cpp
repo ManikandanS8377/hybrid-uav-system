@@ -24,7 +24,7 @@ void RcInput::begin() {
         buf[length] = '\0';
 
         this->process(buf);
-        lastRcUpdate = micros();
+        lastRcUpdate = millis();
     });
 }
 
@@ -63,6 +63,7 @@ void RcInput::process(const char* payload) {
 
     if (idx == CHANNELS) {
         valid = true;
+        lastRcUpdate = millis();
         Debug::log("[RcInput] Frame OK: ");
         Debug::logln(payload);
     } else {

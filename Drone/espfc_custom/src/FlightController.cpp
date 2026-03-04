@@ -1,6 +1,10 @@
 #include "FlightController.h"
 #include "Debug.h"
 
+extern unsigned long LOOP_PERIOD;
+
+uint32_t armStartTime = 0;
+
 void FlightController::begin() {
     imu.begin();
     motor.begin();
@@ -14,23 +18,10 @@ void FlightController::begin() {
 }
 
 void FlightController::update(float dt) {
-    uint32_t now = micros();
+    // Check RC connection
+    runFlightLoop(dt);    
 
-    // Fixed loop timing
-    if (now - lastLoop >= LOOP_US) {
-        lastLoop += LOOP_US;
-        runFlightLoop(dt);
-    }
-
-    // Refresh RC timestamp if valid 
-    if (rc.isValid()) { 
-        lastRcPacket = millis(); 
-    }
-
-    // Failsafe check
-    if (millis() - lastRcPacket > FAILSAFE_TIMEOUT) {
-        setFailsafe();
-    } else if (state == FAILSAFE && rc.isValid()) {
+    if (state == FAILSAFE && rc.isValid()) {
         if (rc.get(ARM_CH) > 1500 && canArm()) {
             state = ARMING;
             Debug::logln("[STATE] RECOVERED → ARMING");
@@ -55,14 +46,14 @@ void FlightController::runFlightLoop(float dt) {
         case DISARMED:
             if (armSwitch > 1500 && canArm()) {
                 state = ARMING;
+                armStartTime = millis();
                 Debug::logln("[STATE] ARMING...");
             }
             motor.stopAll();
             break;
 
         case ARMING:
-            static uint32_t armStart = millis();
-            if (millis() - armStart > 1000) {
+            if (millis() - armStartTime > 1000) {
                 state = ARMED;
                 Debug::logln("[STATE] ARMED");
             }
@@ -75,7 +66,7 @@ void FlightController::runFlightLoop(float dt) {
                 return;
             }
 
-            float dt = LOOP_US / 1e6;
+            float dt = LOOP_PERIOD / 1e6;
             float rollCorr  = pidRoll.update(0, imu.getRollRate(), dt);
             float pitchCorr = pidPitch.update(0, imu.getPitchRate(), dt);
             float yawCorr   = pidYaw.update(0, imu.getYawRate(), dt);
@@ -92,7 +83,7 @@ void FlightController::runFlightLoop(float dt) {
 }
 
 bool FlightController::canArm() {
-    return rc.get(THROTTLE_CH) < 1050; // throttle low
+    return rc.get(THROTTLE_CH) <= MOTOR_MIN + 100; // throttle low
 }
 
 void FlightController::arm() {

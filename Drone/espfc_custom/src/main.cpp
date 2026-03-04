@@ -23,11 +23,11 @@ WifiManager wifi;
 
 // --- Timing ---
 unsigned long lastLoopMicros = 0;
-const unsigned long LOOP_PERIOD = 2000; // 2000 µs = 500 Hz loop
+unsigned long LOOP_PERIOD = 15; // 
 
 // --- Failsafe ---
 unsigned long lastRcUpdate = 0;
-const unsigned long FAILSAFE_TIMEOUT = 500000; // 500 ms
+const unsigned long FAILSAFE_TIMEOUT = 5000; // 500 ms
 
 void setup() {
   Serial.begin(115200);
@@ -44,7 +44,7 @@ void loop() {
   wifi.update();
   rc.updateConnection();
 
-  unsigned long now = micros();
+  unsigned long now = millis();
 
   // Enforce fixed loop frequency
   if (now - lastLoopMicros < LOOP_PERIOD) return;
@@ -58,20 +58,9 @@ void loop() {
     return;
   }
 
-  fc.runFlightLoop(dt);
-
   // --- Flight control loop ---
-  imu.update(dt);   // ✅ pass dt for complementary filter
+  imu.update(dt);   
   fc.update(dt);
-
-  // RC inputs
-  int throttle = rc.get(THROTTLE_CH);
-  bool armed   = rc.get(ARM_CH) > 1500;
-
-  if (!armed || throttle < MOTOR_IDLE) {
-    motor.idle();
-    return;
-  }
 
   // PID corrections (gyro rates in deg/s)
   float rollCorr  = pidRoll.update(0, imu.getRollRate(), dt);

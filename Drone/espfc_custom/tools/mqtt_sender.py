@@ -45,7 +45,7 @@ def main():
         while True:
             # Default neutral values
             vals = [1500] * CHANNELS
-            vals[2] = 1000   # throttle low by default
+            vals[2] = 1100   # throttle low by default
             vals[4] = aux1_state  # ARM channel
 
             # Toggle ARM
