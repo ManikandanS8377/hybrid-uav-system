@@ -32,9 +32,6 @@ const unsigned long FAILSAFE_TIMEOUT = 5000; // 500 ms
 void setup() {
   Serial.begin(115200);
   wifi.begin(WIFI_SSID, WIFI_PASS);
-  imu.begin();
-  motor.begin();
-  rc.begin();
   fc.begin();
   Debug::logln("[BOOT] Flight loop initialized");
 }
