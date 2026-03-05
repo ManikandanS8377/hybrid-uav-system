@@ -1,2 +1,10 @@
 For Custom YOLO Model Built.
 https://pyseek.com/2024/08/bike-helmet-detection-project-in-python/
+
+
+For Drone Components
+https://circuitdigest.com/review/everything-you-need-to-know-about-the-e88-drone-teardown
+
+https://www.youtube.com/watch?v=QvRxxjaLjxg
+
+https://www.youtube.com/watch?v=v9hY0CBVKWs&t=36s
