@@ -13,8 +13,8 @@ public:
     float getRollRate() const { return gyroX; }
     float getPitchRate() const { return gyroY; }
     float getYawRate() const { return gyroZ; }
-    float getRollAngle() const { return angleX; }
-    float getPitchAngle() const { return angleY; }
+    float getRollAngle() const { return angleX - angleOffsetX; }
+    float getPitchAngle() const { return angleY - angleOffsetY; }
 
 private:
     MPU6050 mpu;
@@ -25,4 +25,8 @@ private:
 
     // Filtered angles
     float angleX, angleY;
+
+    // Offsets for calibration
+    float gyroOffsetX, gyroOffsetY, gyroOffsetZ;
+    float angleOffsetX, angleOffsetY;
 };

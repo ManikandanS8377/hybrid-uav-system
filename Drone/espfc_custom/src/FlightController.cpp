@@ -61,9 +61,31 @@ void FlightController::runFlightLoop(float dt) {
             }
 
             float dt = LOOP_PERIOD / 1e6;
-            float rollCorr  = pidRoll.update(0, imu.getRollRate(), dt);
-            float pitchCorr = pidPitch.update(0, imu.getPitchRate(), dt);
-            float yawCorr   = pidYaw.update(0, imu.getYawRate(), dt);
+
+            // --- Get raw stick values ---
+            int rollInput  = rc.get(ROLL_CH);
+            int pitchInput = rc.get(PITCH_CH);
+            int yawInput   = rc.get(YAW_CH);
+
+            // --- Apply deadband (±15 around center 1500) ---
+            if (abs(rollInput - 1500) < 15)  rollInput  = 1500;
+            if (abs(pitchInput - 1500) < 15) pitchInput = 1500;
+            if (abs(yawInput - 1500) < 15)   yawInput   = 1500;
+
+            // --- Convert to rate setpoints ---
+            float rollSetpoint  = (rollInput  - 1500) * 0.2f;
+            float pitchSetpoint = (pitchInput - 1500) * 0.2f;
+            float yawSetpoint   = (yawInput   - 1500) * 0.2f;
+
+            // PID
+            float rollCorr  = pidRoll.update(rollSetpoint,  imu.getRollRate(), dt);
+            float pitchCorr = pidPitch.update(pitchSetpoint, imu.getPitchRate(), dt);
+            float yawCorr   = pidYaw.update(yawSetpoint,    imu.getYawRate(), dt);
+
+            // --- Add PID Output Limit ---
+            rollCorr  = constrain(rollCorr,  -300, 300);
+            pitchCorr = constrain(pitchCorr, -300, 300);
+            yawCorr   = constrain(yawCorr,   -300, 300);
 
             motor.mix(throttle, rollCorr, pitchCorr, yawCorr);
             break;
