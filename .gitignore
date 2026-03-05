@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # PlatformIO build system
-.pio/
+Drone/espcf_custom/.pio/
