@@ -58,9 +58,9 @@ def main():
 
             # Arrow keys for throttle/roll
             if keyboard.is_pressed("up"):
-                vals[2] = 1600  # throttle up
+                vals[2] = 1990  # throttle up
             if keyboard.is_pressed("down"):
-                vals[2] = 1000  # throttle down
+                vals[2] = 1200  # throttle down
             if keyboard.is_pressed("left"):
                 vals[0] = 1200  # roll left
             if keyboard.is_pressed("right"):
