@@ -5,13 +5,13 @@ on:
     branches:
       - main
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
 
     permissions:
-      contents: read
-
+      contents: write   # changed from read → write
 
     steps:
 
@@ -33,8 +33,18 @@ jobs:
         cd Drone/espfc_custom
         platformio run -e esp32
 
-    - name: Upload Firmware
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: firmware
         path: Drone/espfc_custom/.pio/build/esp32/firmware*.bin
+
+    - name: Create Release and Upload Firmware
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        name: Drone Firmware v1.0.${{ github.run_number }}
+        files: Drone/espfc_custom/.pio/build/esp32/firmware*.bin
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        

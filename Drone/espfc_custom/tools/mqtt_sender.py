@@ -62,19 +62,19 @@ def main():
             if keyboard.is_pressed("down"):
                 vals[2] = 1200  # throttle down
             if keyboard.is_pressed("left"):
-                vals[0] = 1200  # roll left
+                vals[0] = 1900  # roll left
             if keyboard.is_pressed("right"):
-                vals[0] = 1800  # roll right
+                vals[0] = 1900  # roll right
 
             # WASD for pitch/yaw
             if keyboard.is_pressed("w"):
-                vals[1] = 1800  # pitch forward
+                vals[1] = 1900  # pitch forward
             if keyboard.is_pressed("s"):
-                vals[1] = 1200  # pitch backward
+                vals[1] = 1900  # pitch backward
             if keyboard.is_pressed("a"):
-                vals[3] = 1200  # yaw left
+                vals[3] = 1900  # yaw left
             if keyboard.is_pressed("d"):
-                vals[3] = 1800  # yaw right
+                vals[3] = 1900  # yaw right
 
             publish(client, vals)
             time.sleep(1.0 / RATE)
