@@ -32,9 +32,11 @@ void RcInput::updateConnection() {
     if (WiFi.status() == WL_CONNECTED) {
         if (!mqttClient.connected()) {
             Debug::logln("[MQTT] Attempting connect...");
+            digitalWrite(STATUS_LED_PIN, HIGH);
             String clientId = "esp32_client_" + String(random(0xffff), HEX);
             if (mqttClient.connect(clientId.c_str())) {
                 mqttClient.subscribe(MQTT_TOPIC);
+                digitalWrite(STATUS_LED_PIN, LOW);
                 Debug::logln("[MQTT] Connected + subscribed");
             } else {
                 Debug::log("[MQTT] Connect failed, rc=");
