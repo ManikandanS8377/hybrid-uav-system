@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['With Helmet', 'Without Helmet']
+
+roboflow:
+  workspace: helmet-yolov5
+  project: helmet-detection-ar0n2
+  version: 1
+  license: MIT
+  url: https://universe.roboflow.com/helmet-yolov5/helmet-detection-ar0n2/dataset/1
