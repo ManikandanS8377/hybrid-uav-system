@@ -57,9 +57,12 @@ void FlightController::runFlightLoop(float dt) {
         case ARMED: {
             if (armSwitch < 1500) {
                 disarm();
+                digitalWrite(STATUS_LED_PIN, LOW);
                 return;
             }
 
+            digitalWrite(STATUS_LED_PIN, HIGH);
+            
             float dt = LOOP_PERIOD / 1e6;
 
             // --- Get raw stick values ---
@@ -92,6 +95,7 @@ void FlightController::runFlightLoop(float dt) {
         }
 
         case FAILSAFE:
+            digitalWrite(STATUS_LED_PIN, LOW);
             motor.stopAll();
             if (rc.isValid()) {
                 state = DISARMED;

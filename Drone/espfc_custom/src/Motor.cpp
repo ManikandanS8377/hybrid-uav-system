@@ -15,6 +15,7 @@ void Motor::stopAll() {
         writeMotor(i, MOTOR_MIN); // full stop
     }
     Debug::logln("[Motor] All motors stopped");
+    digitalWrite(STATUS_LED_PIN, LOW);
 }
 
 void Motor::failsafe() {

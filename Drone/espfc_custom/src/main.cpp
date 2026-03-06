@@ -30,7 +30,16 @@ unsigned long lastRcUpdate = 0;
 const unsigned long FAILSAFE_TIMEOUT = 5000; // 500 ms
 
 void setup() {
-  Serial.begin(115200);
+
+  #if DEBUG_SERIAL
+    Serial.begin(115200);
+  #endif
+
+  pinMode(STATUS_LED_PIN, OUTPUT);
+  digitalWrite(STATUS_LED_PIN, LOW);
+
+  delay(2000);
+  
   wifi.begin(WIFI_SSID, WIFI_PASS);
   fc.begin();
   Debug::logln("[BOOT] Flight loop initialized");
