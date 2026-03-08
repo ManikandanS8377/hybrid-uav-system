@@ -30,25 +30,6 @@ void Motor::idle() {
     Debug::logln("[Motor] Motors set to idle");
 }
 
-void Motor::mix(int throttle, float roll, float pitch, float yaw) {
-    // QUADX mixer math
-    int m0 = throttle + roll - pitch + yaw; // front right
-    int m1 = throttle - roll - pitch - yaw; // front left
-    int m2 = throttle - roll + pitch + yaw; // rear left
-    int m3 = throttle + roll + pitch - yaw; // rear right
-
-    // Clamp outputs
-    m0 = constrain(m0, MOTOR_MIN, MOTOR_MAX);
-    m1 = constrain(m1, MOTOR_MIN, MOTOR_MAX);
-    m2 = constrain(m2, MOTOR_MIN, MOTOR_MAX);
-    m3 = constrain(m3, MOTOR_MIN, MOTOR_MAX);
-
-    writeMotor(0, m0);
-    writeMotor(1, m1);
-    writeMotor(2, m2);
-    writeMotor(3, m3);
-}
-
 // Only one definition of update()
 void Motor::update(const Mixer& mixer) {
     for (int i = 0; i < 4; i++) {

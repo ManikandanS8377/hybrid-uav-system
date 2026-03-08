@@ -4,6 +4,7 @@
 #include "RcInput.h"
 #include "Motor.h"
 #include "PID.h"
+#include "Mixer.h"
 
 enum FlightState {
     DISARMED,
@@ -34,6 +35,7 @@ private:
     RcInput rc;
     Motor motor;
     PID pidRoll, pidPitch, pidYaw;
+    Mixer mixer;
 
     // Safety
     unsigned long lastRcPacket = 0;

@@ -1,89 +1,115 @@
 #!/usr/bin/env python3
-"""
-mqtt_send.py
-
-MQTT RC sender aligned with ESP-FC firmware:
-- Channels: [ROLL, PITCH, THROTTLE, YAW, ARM, AUX2, AUX3, AUX4]
-- Values: 1000–2000 (center = 1500)
-- ARM toggle: 'E' to ARM (2000), 'Q' to DISARM (1000)
-- Arrow keys + WASD control throttle/roll/pitch/yaw
-"""
 
 import time
 import paho.mqtt.client as mqtt
-import keyboard  # pip install keyboard
+import keyboard
 
 BROKER = "broker.emqx.io"
 PORT = 1883
 TOPIC = "espfc/rc"
+
 CHANNELS = 8
-RATE = 100.0  # Hz 
+RATE = 100.0
+
+CENTER = 1510        # slight trim for stability
+MIN_VAL = 1000
+MAX_VAL = 2000
+
+ROLL_STEP = 300
+PITCH_STEP = 300
+YAW_STEP = 300
+
+THROTTLE_LOW = 1100
+THROTTLE_HIGH = 1800
+
 
 def publish(client, values):
-    payload = ','.join(str(int(v)) for v in values)
+    payload = ",".join(str(int(v)) for v in values)
     client.publish(TOPIC, payload)
 
-    # Print with labels for clarity
     print(
-        f"ROLL={values[0]} | "
-        f"PITCH={values[1]} | "
-        f"THROTTLE={values[2]} | "
-        f"YAW={values[3]} | "
-        f"ARM={values[4]} | "
-        f"AUX2={values[5]} | AUX3={values[6]} | AUX4={values[7]}"
+        f"R={values[0]} "
+        f"P={values[1]} "
+        f"T={values[2]} "
+        f"Y={values[3]} "
+        f"ARM={values[4]}"
     )
 
+
+def clamp(v):
+    return max(MIN_VAL, min(MAX_VAL, v))
+
+
 def main():
+
     client = mqtt.Client()
     client.connect(BROKER, PORT, 60)
     client.loop_start()
-    print(f"Connected to {BROKER}:{PORT}, publishing to {TOPIC}")
 
-    aux1_state = 1000  # ARM channel starts DISARMED
+    print("MQTT RC sender started")
+
+    arm_state = 1000
 
     try:
+
         while True:
-            # Default neutral values
-            vals = [1500] * CHANNELS
-            vals[2] = 1100   # throttle low by default
-            vals[4] = aux1_state  # ARM channel
 
-            # Toggle ARM
+            vals = [CENTER] * CHANNELS
+
+            # throttle default
+            vals[2] = THROTTLE_LOW
+
+            # arm channel
+            vals[4] = arm_state
+
+            # ARM / DISARM
             if keyboard.is_pressed("e"):
-                aux1_state = 2000
-                print("ARM sent")
+                arm_state = 2000
+                print("ARM")
+
             if keyboard.is_pressed("q"):
-                aux1_state = 1000
-                print("DISARM sent")
+                arm_state = 1000
+                print("DISARM")
 
-            # Arrow keys for throttle/roll
+            # THROTTLE
             if keyboard.is_pressed("up"):
-                vals[2] = 1990  # throttle up
-            if keyboard.is_pressed("down"):
-                vals[2] = 1200  # throttle down
-            if keyboard.is_pressed("left"):
-                vals[0] = 1900  # roll left
-            if keyboard.is_pressed("right"):
-                vals[0] = 1900  # roll right
+                vals[2] = THROTTLE_HIGH
 
-            # WASD for pitch/yaw
+            if keyboard.is_pressed("down"):
+                vals[2] = THROTTLE_LOW
+
+            # ROLL
+            if keyboard.is_pressed("left"):
+                vals[0] = clamp(CENTER - ROLL_STEP)
+
+            if keyboard.is_pressed("right"):
+                vals[0] = clamp(CENTER + ROLL_STEP)
+
+            # PITCH
             if keyboard.is_pressed("w"):
-                vals[1] = 1900  # pitch forward
+                vals[1] = clamp(CENTER + PITCH_STEP)
+
             if keyboard.is_pressed("s"):
-                vals[1] = 1900  # pitch backward
+                vals[1] = clamp(CENTER - PITCH_STEP)
+
+            # YAW
             if keyboard.is_pressed("a"):
-                vals[3] = 1900  # yaw left
+                vals[3] = clamp(CENTER - YAW_STEP)
+
             if keyboard.is_pressed("d"):
-                vals[3] = 1900  # yaw right
+                vals[3] = clamp(CENTER + YAW_STEP)
 
             publish(client, vals)
+
             time.sleep(1.0 / RATE)
 
     except KeyboardInterrupt:
-        print("\nStopped by user")
+        print("Stopped")
+
     finally:
         client.loop_stop()
         client.disconnect()
+
 
 if __name__ == "__main__":
     main()

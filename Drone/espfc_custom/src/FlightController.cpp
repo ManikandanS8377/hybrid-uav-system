@@ -33,7 +33,6 @@ void FlightController::runFlightLoop(float dt) {
         return;
     }
 
-    int throttle = rc.get(THROTTLE_CH);
     int armSwitch = rc.get(ARM_CH);
 
     switch (state) {
@@ -62,8 +61,6 @@ void FlightController::runFlightLoop(float dt) {
             }
 
             digitalWrite(STATUS_LED_PIN, HIGH);
-            
-            float dt = LOOP_PERIOD / 1e6;
 
             // --- Get raw stick values ---
             int rollInput  = rc.get(ROLL_CH);
@@ -90,7 +87,11 @@ void FlightController::runFlightLoop(float dt) {
             pitchCorr = constrain(pitchCorr, -300, 300);
             yawCorr   = constrain(yawCorr,   -300, 300);
 
-            motor.mix(throttle, rollCorr, pitchCorr, yawCorr);
+            // MIXER
+            mixer.update(rc, rollCorr, pitchCorr, yawCorr);
+
+            // send to motors
+            motor.update(mixer);
             break;
         }
 
