@@ -2,21 +2,16 @@
 #include "Config.h"
 #include "Debug.h"
 
-// include PID corrections
+// FIX: Removed internal ARM_CH re-check from Mixer.
+// FlightController state machine is the single authority on armed/disarmed.
+// Re-reading ARM_CH here caused motors to cut if arm switch glitched for 1 frame,
+// even while legitimately in ARMED state.
 void Mixer::update(RcInput& rc, float rollCorr, float pitchCorr, float yawCorr)
 {
     int throttle = rc.get(THROTTLE_CH);
-    bool armed   = rc.get(ARM_CH) > 1500;
 
-    if (!armed)
-    {
-        for(int i=0;i<4;i++)
-            outputs[i] = MOTOR_MIN;
-        return;
-    }
-
-    // ensure idle spin
-    throttle = max(throttle, MOTOR_IDLE);
+    // ensure idle spin at minimum when armed (Mixer is only called when ARMED)
+    throttle = max(throttle, (int)MOTOR_IDLE);
 
     // QUADX mix
     outputs[0] = throttle + rollCorr + pitchCorr - yawCorr; // M1 Rear Left
@@ -24,8 +19,7 @@ void Mixer::update(RcInput& rc, float rollCorr, float pitchCorr, float yawCorr)
     outputs[2] = throttle - rollCorr + pitchCorr + yawCorr; // M3 Rear Right
     outputs[3] = throttle - rollCorr - pitchCorr - yawCorr; // M4 Front Right
 
-    for(int i=0;i<4;i++)
-    {
+    for (int i = 0; i < 4; i++) {
         outputs[i] = constrain(outputs[i], MOTOR_MIN, MOTOR_MAX);
     }
 }

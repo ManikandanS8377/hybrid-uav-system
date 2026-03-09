@@ -4,7 +4,8 @@
 
 void Motor::begin() {
     for (int i = 0; i < 4; i++) {
-        ledcSetup(i, 50, 16); // 50 Hz, 16-bit resolution
+        // FIX #1: 20kHz/10-bit for brushed motors (50Hz caused flip due to uneven thrust)
+        ledcSetup(i, 20000, 10);
         ledcAttachPin(MOTOR_PINS[i], i);
     }
     stopAll();
@@ -39,6 +40,7 @@ void Motor::update(const Mixer& mixer) {
 }
 
 void Motor::writeMotor(int channel, int value) {
-    int duty = map(value, MOTOR_MIN, MOTOR_MAX, 0, 65535); 
+    // FIX #1 continued: 10-bit range (0-1023) matches 20kHz ledcSetup
+    int duty = map(value, MOTOR_MIN, MOTOR_MAX, 0, 1023);
     ledcWrite(channel, duty);
 }

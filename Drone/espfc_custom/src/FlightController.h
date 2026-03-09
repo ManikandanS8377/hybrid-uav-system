@@ -28,7 +28,15 @@ private:
 
     FlightState state = DISARMED;
     uint32_t lastLoop = 0;
-    const uint32_t LOOP_US = 2000; // 500 Hz
+    const uint32_t LOOP_US = 2000;
+
+    // After failsafe recovery, ARM switch must go LOW before re-arming is permitted.
+    // Prevents instant re-arm loop when ARM is still held high after link recovers.
+    bool requireArmLow = false;
+
+    // True only after motors have actually spun (ARMING→ARMED transition).
+    // Prevents requireArmLow from blocking first-ever arm after boot.
+    bool wasArmed = false;
 
     // Modules
     IMU imu;

@@ -29,22 +29,41 @@ void RcInput::begin() {
 }
 
 void RcInput::updateConnection() {
-    if (WiFi.status() == WL_CONNECTED) {
-        if (!mqttClient.connected()) {
-            Debug::logln("[MQTT] Attempting connect...");
-            digitalWrite(STATUS_LED_PIN, HIGH);
-            String clientId = "esp32_client_" + String(random(0xffff), HEX);
-            if (mqttClient.connect(clientId.c_str())) {
-                mqttClient.subscribe(MQTT_TOPIC);
-                digitalWrite(STATUS_LED_PIN, LOW);
-                Debug::logln("[MQTT] Connected + subscribed");
-            } else {
-                Debug::log("[MQTT] Connect failed, rc=");
-                Debug::logln(mqttClient.state());
-            }
+    if (WiFi.status() != WL_CONNECTED) return;
+
+    if (!mqttClient.connected()) {
+        // Non-blocking reconnect: only attempt once every 2 seconds.
+        // mqttClient.connect() is a BLOCKING TCP call that can take 500ms–3000ms
+        // on a public broker. Without this cooldown, every dropped connection
+        // stalls the entire flight loop during the reconnect attempt, causing
+        // lastRcUpdate to go stale → false failsafe immediately after reconnect.
+        unsigned long now = millis();
+        if (now - lastReconnectAttempt < 2000) {
+            return; // cooldown not expired, skip this cycle
         }
-        mqttClient.loop(); // process packets
+        lastReconnectAttempt = now;
+
+        Debug::logln("[MQTT] Attempting connect...");
+        digitalWrite(STATUS_LED_PIN, HIGH);
+
+        String clientId = "esp32_" + String(random(0xffff), HEX);
+        if (mqttClient.connect(clientId.c_str())) {
+            mqttClient.subscribe(MQTT_TOPIC);
+            digitalWrite(STATUS_LED_PIN, LOW);
+            Debug::logln("[MQTT] Connected + subscribed");
+
+            // Reset timeout clock to now so the 2000ms window starts fresh.
+            // The sender needs a moment after broker connect to deliver first packet.
+            lastRcUpdate = millis();
+        } else {
+            Debug::log("[MQTT] Connect failed rc=");
+            Debug::logln(mqttClient.state());
+            digitalWrite(STATUS_LED_PIN, LOW);
+        }
+        return; // skip mqttClient.loop() this cycle — just reconnected
     }
+
+    mqttClient.loop(); // process incoming packets
 }
 
 
@@ -75,8 +94,15 @@ void RcInput::process(const char* payload) {
 }
 
 bool RcInput::isValid() {
-    const unsigned long TIMEOUT = 1500; // 1500ms
-    return (millis() - lastRcUpdate) <= TIMEOUT;
+    // 2000ms timeout for in-flight use.
+    // At 40Hz sender rate, 2000ms = 80 missed packets = definite link loss.
+    // Public broker spikes are typically 200–800ms, well within this window.
+    //
+    // STARTUP GRACE: lastRcUpdate is set to millis() at boot AND reset after
+    // each successful MQTT reconnect, so the WiFi+MQTT connect sequence
+    // (which can take 3–5 seconds) doesn't consume the timeout window.
+    const unsigned long TIMEOUT_MS = 2000;
+    return (millis() - lastRcUpdate) <= TIMEOUT_MS;
 }
 
 int RcInput::get(int ch) {

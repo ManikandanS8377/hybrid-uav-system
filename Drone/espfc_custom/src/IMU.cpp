@@ -40,12 +40,18 @@ void IMU::begin(int sda, int scl) {
 
     Debug::logln("[IMU] Gyro calibration done");
 
-    // Let filter settle briefly
-    delay(200);
+    // FIX #5: Run filter for 500 cycles so angles actually settle before capturing offset
+    // Old: delay(200) captured angleX/Y = 0 (filter hadn't run), making offset useless
+    Debug::logln("[IMU] Settling filter...");
+    for (int i = 0; i < 500; i++) {
+        update(0.002f);
+        delay(2);
+    }
 
-    // Capture initial angle as zero reference
+    // Capture true resting angle as zero reference
     angleOffsetX = angleX;
     angleOffsetY = angleY;
+    Debug::logln("[IMU] Angle offset captured");
 }
 
 void IMU::update(float dt) {
