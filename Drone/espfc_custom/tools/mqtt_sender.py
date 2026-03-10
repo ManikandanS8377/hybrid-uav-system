@@ -47,7 +47,7 @@ THROTTLE_LOW  = 1000
 THROTTLE_MAX  = 1800
 
 # ── SERIAL LOGGING ────────────────────────────────────────────
-SERIAL_LOGGING = True       # Set False to disable
+SERIAL_LOGGING = False       # Set False to disable
 SERIAL_PORT    = "COM4"       # None = auto-detect, or set e.g. "COM3"
 SERIAL_BAUD    = 115200
 

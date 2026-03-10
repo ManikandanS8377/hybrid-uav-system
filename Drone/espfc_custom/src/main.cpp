@@ -23,7 +23,7 @@ WifiManager wifi;
 
 // --- Timing ---
 unsigned long lastLoopMillis = 0; // renamed from lastLoopMicros (uses millis, not micros)
-unsigned long LOOP_PERIOD = 15;   // 15ms = ~66Hz loop rate
+unsigned long LOOP_PERIOD = 4;   // 4ms = ~250Hz loop rate
 
 // --- Failsafe ---
 unsigned long lastRcUpdate = 0;
