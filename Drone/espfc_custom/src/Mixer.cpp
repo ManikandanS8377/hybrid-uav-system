@@ -13,15 +13,35 @@ void Mixer::update(RcInput& rc, float rollCorr, float pitchCorr, float yawCorr)
     // ensure idle spin at minimum when armed (Mixer is only called when ARMED)
     throttle = max(throttle, (int)MOTOR_IDLE);
 
-    // QUADX mix
-    outputs[0] = throttle + rollCorr + pitchCorr - yawCorr; // M1 Rear Left
-    outputs[1] = throttle + rollCorr - pitchCorr + yawCorr; // M2 Front Left
-    outputs[2] = throttle - rollCorr + pitchCorr + yawCorr; // M3 Rear Right
-    outputs[3] = throttle - rollCorr - pitchCorr - yawCorr; // M4 Front Right
+    // QUADX mix — equations matched to physical wiring and actual spin directions:
+    //   index 0 → GPIO 14 → Rear  RIGHT (CW)
+    //   index 1 → GPIO 25 → Front RIGHT (CCW)
+    //   index 2 → GPIO 27 → Rear  LEFT  (CCW)
+    //   index 3 → GPIO 26 → Front LEFT  (CW)
+    //
+    //         FRONT
+    //   FL(CW)   FR(CCW)
+    //   RL(CCW)  RR(CW)
+    //         REAR
+    //
+    // Roll  right(+) → right side needs LESS power
+    // Pitch fwd  (+) → front  side needs LESS power
+    // Yaw   CW   (+) → CW motors (RR,FL) MORE, CCW motors (FR,RL) LESS
+    outputs[0] = throttle + rollCorr - pitchCorr + yawCorr; // Rear  RIGHT (CW)
+    outputs[1] = throttle + rollCorr + pitchCorr - yawCorr; // Front RIGHT (CCW)
+    outputs[2] = throttle - rollCorr - pitchCorr - yawCorr; // Rear  LEFT  (CCW)
+    outputs[3] = throttle - rollCorr + pitchCorr + yawCorr; // Front LEFT  (CW)
 
     for (int i = 0; i < 4; i++) {
         outputs[i] = constrain(outputs[i], MOTOR_MIN, MOTOR_MAX);
     }
+
+    // Debug: print motor outputs so tilt corrections can be verified
+    // Format: M0=RR  M1=FR  M2=RL  M3=FL
+    Debug::log("[Motors] RR="); Debug::log(outputs[0]);
+    Debug::log(" FR=");         Debug::log(outputs[1]);
+    Debug::log(" RL=");         Debug::log(outputs[2]);
+    Debug::log(" FL=");         Debug::logln(outputs[3]);
 }
 
 int Mixer::getMotor(int index) const {

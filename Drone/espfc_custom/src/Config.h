@@ -34,7 +34,7 @@ const int CHANNELS = 8;
 
 // LED Indicator pins
 #define STATUS_LED_PIN 2
-#define DEBUG_SERIAL 0
+#define DEBUG_SERIAL 1   // TEMP: enabled to verify motor mixer corrections
 
 // Motor pins (adjust to your ESP32 GPIOs)
 const int MOTOR_PINS[4] = {14, 25, 27, 26}; // AO3400 gate pins
