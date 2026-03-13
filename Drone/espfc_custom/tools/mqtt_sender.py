@@ -44,7 +44,7 @@ PITCH_STEP    = 100
 YAW_STEP      = 100
 THROTTLE_STEP = 10
 THROTTLE_LOW  = 1000
-THROTTLE_MAX  = 1800
+THROTTLE_MAX  = 1950
 
 # ── SERIAL LOGGING ────────────────────────────────────────────
 SERIAL_LOGGING = False       # Set False to disable
