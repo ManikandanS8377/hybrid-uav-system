@@ -38,6 +38,12 @@ void IMU::begin(int sda, int scl) {
     gyroOffsetY = (sumY / (float)samples) / 131.0f;
     gyroOffsetZ = (sumZ / (float)samples) / 131.0f;
 
+    // ✅ Print gyro offsets
+    Debug::logln("[IMU] Gyro offsets (deg/s):");
+    Debug::log(" OffsetX (Roll) : ");Debug::logln(angleOffsetX);
+    Debug::log(" OffsetY (Pitch): ");Debug::logln(angleOffsetY);
+    //Debug::log(" OffsetZ (Yaw)  : ");Debug::logln(angleOffsetZ);
+
     Debug::logln("[IMU] Gyro calibration done");
 
     // FIX #5: Run filter for 500 cycles so angles actually settle before capturing offset
@@ -51,7 +57,12 @@ void IMU::begin(int sda, int scl) {
     // Capture true resting angle as zero reference
     angleOffsetX = angleX;
     angleOffsetY = angleY;
+    
+    // ✅ Print angle offsets after settling
     Debug::logln("[IMU] Angle offset captured");
+    Debug::log(" AngleOffsetX (Roll) : ");Debug::logln(angleOffsetX);
+    Debug::log(" AngleOffsetY (Pitch): ");Debug::logln(angleOffsetY);
+   // Debug::log(" AngleOffsetZ (Yaw)  : ");Debug::logln(angleOffsetZ);
 }
 
 void IMU::update(float dt) {

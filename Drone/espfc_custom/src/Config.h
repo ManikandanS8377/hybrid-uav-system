@@ -37,4 +37,4 @@ const int CHANNELS = 8;
 #define DEBUG_SERIAL 0   // TEMP: enabled to verify motor mixer corrections
 
 // Motor pins (adjust to your ESP32 GPIOs)
-const int MOTOR_PINS[4] = {14, 25, 27, 26}; // AO3400 gate pins
+const int MOTOR_PINS[4] = {19, 32, 27, 33}; // AO3400 gate pins

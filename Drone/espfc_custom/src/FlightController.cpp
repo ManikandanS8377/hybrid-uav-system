@@ -12,9 +12,9 @@ void FlightController::begin() {
     rc.begin();
 
     // Rate PID (used after angle loop)
-    pidRoll.init(1.8, 0.0, 0.04);
-    pidPitch.init(1.8, 0.0, 0.04);
-    pidYaw.init(1.5, 0.0, 0.0);
+    pidRoll.init(0.5, 0.0, 0.02);
+    pidPitch.init(0.5, 0.0, 0.02);
+    pidYaw.init(0.5, 0.0, 0.0);
 
     Debug::logln("[FlightController] Initialized");
 }
